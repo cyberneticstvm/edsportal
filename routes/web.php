@@ -54,6 +54,20 @@ Route::middleware(['web'])->group(function () {
             Route::post('blog-update', 'update_blog')->name('blog.update');
             Route::get('blog-delete', 'delete_blog')->name('blog.delete');
 
+            Route::get('jobs', 'jobs')->name('jobs');
+            Route::get('job-create', 'create_job')->name('job.create');
+            Route::post('job-save', 'save_job')->name('job.save');
+            Route::get('job-edit', 'edit_job')->name('job.edit');
+            Route::post('job-update', 'update_job')->name('job.update');
+            Route::get('job-delete', 'delete_job')->name('job.delete');
+
+            Route::get('eds_referrals', 'eds_referrals')->name('eds.referrals');
+            Route::get('eds-referral-create', 'create_eds_referral')->name('eds.referral.create');
+            Route::post('eds-referral-save', 'save_eds_referral')->name('eds.referral.save');
+            Route::get('eds-referral-edit', 'edit_eds_referral')->name('eds.referral.edit');
+            Route::post('eds-referral-update', 'update_eds_referral')->name('eds.referral.update');
+            Route::get('eds-referral-delete', 'delete_eds_referral')->name('eds.referral.delete');
+
             Route::get('form-submits', 'form_submits')->name('form.submits');
             Route::get('form-submit-delete', 'form_submit_delete')->name('form.submit.delete');
 

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\CertificateRequest;
 use App\Models\Course;
+use App\Models\EdsReferral;
 use App\Models\Extra;
 use App\Models\FileUpload;
 use App\Models\FormSubmit;
+use App\Models\JobPost;
 use App\Models\Student;
 use App\Models\StudentFeedback;
 use App\Models\User;
@@ -179,7 +181,7 @@ class HelperController extends Controller
         $inputs["created_by"] = $request->user()->id;
         $inputs["updated_by"] = $request->user()->id;
         Blog::create($inputs);
-        return redirect()->back()->with("success", "Blog created successfully!");
+        return redirect()->route('blogs')->with("success", "Blog created successfully!");
     }
 
     function edit_blog(Request $request)
@@ -205,6 +207,115 @@ class HelperController extends Controller
     {
         Blog::findOrFail(decrypt($request->id))->delete();
         return redirect()->route('blogs')->with("success", "Blog deleted successfully!");
+    }
+
+    function jobs()
+    {
+        $jobs = JobPost::selectRaw("id, title, location, contact_email, posted_on")->latest()->get();
+        return view("job.index", compact('jobs'));
+    }
+
+    function create_job()
+    {
+        return view("job.create");
+    }
+
+    function save_job(Request $request)
+    {
+        $inputs = $request->validate([
+            "title" => "required",
+            "contact_email" => "required|email",
+            "location" => "required",
+            "posted_on" => "required|date",
+            "description" => "required",
+        ]);
+        $inputs["created_by"] = $request->user()->id;
+        $inputs["updated_by"] = $request->user()->id;
+        JobPost::create($inputs);
+        return redirect()->route("jobs")->with("success", "Job created successfully!");
+    }
+
+    function edit_job(Request $request)
+    {
+        $job = JobPost::findOrFail(decrypt($request->id));
+        return view("job.edit", compact('job'));
+    }
+
+    function update_job(Request $request)
+    {
+        $inputs = $request->validate([
+            "title" => "required",
+            "contact_email" => "required|email",
+            "location" => "required",
+            "posted_on" => "required|date",
+            "description" => "required",
+        ]);
+        $inputs["updated_by"] = $request->user()->id;
+        JobPost::findOrFail(decrypt($request->id))->update($inputs);
+        return redirect()->route('jobs')->with("success", "Job updated successfully!");
+    }
+
+    function delete_job(Request $request)
+    {
+        JobPost::findOrFail(decrypt($request->id))->delete();
+        return redirect()->route('jobs')->with("success", "Job deleted successfully!");
+    }
+
+    function eds_referrals()
+    {
+        $referrals = EdsReferral::latest()->get();
+        return view("referral.index", compact('referrals'));
+    }
+
+    function create_eds_referral()
+    {
+        $courses = $this->courses->pluck("name", "id");
+        return view("referral.create", compact('courses'));
+    }
+
+    function save_eds_referral(Request $request)
+    {
+        $inputs = $request->validate([
+            "first_name" => "required",
+            "last_name" => "required",
+            "email" => "required|email",
+            "course_id" => "required",
+            "registration_date" => "required|date",
+            "comments" => "nullable",
+        ]);
+        $inputs["created_by"] = $request->user()->id;
+        $inputs["updated_by"] = $request->user()->id;
+        $inputs["referral_code"] = NULL;
+        EdsReferral::create($inputs);
+        return redirect()->route("eds.referrals")->with("success", "Refferal created successfully!");
+    }
+
+    function edit_eds_referral(Request $request)
+    {
+        $referral = EdsReferral::findOrFail(decrypt($request->id));
+        $courses = $this->courses->pluck("name", "id");
+        return view("referral.edit", compact('referral', 'courses'));
+    }
+
+    function update_eds_referral(Request $request)
+    {
+        $inputs = $request->validate([
+            "first_name" => "required",
+            "last_name" => "required",
+            "email" => "required|email",
+            "course_id" => "required",
+            "registration_date" => "required|date",
+            "comments" => "nullable",
+        ]);
+        $inputs["updated_by"] = $request->user()->id;
+        EdsReferral::findOrFail(decrypt($request->id))->update($inputs);
+        return redirect()->route('eds.referrals')->with("success", "Referral updated successfully!");
+    }
+
+    function delete_eds_referral(Request $request)
+    {
+        EdsReferral::findOrFail(decrypt($request->id))->delete();
+        return redirect()->route('eds.referrals')->with("success", "Referral deleted successfully!");
     }
 
     function form_submits()

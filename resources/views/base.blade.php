@@ -346,7 +346,7 @@
         $(document).ready(function() {
             $('#summernote').summernote({
                 height: 250,
-                placeholder: 'Blog Content'
+                placeholder: 'Description / Content'
             });
         });
     </script>

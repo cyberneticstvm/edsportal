@@ -18,12 +18,14 @@
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Feedback</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
                 <li><a href="{{ route('feedbacks') }}" class="dropdown-item rounded-pill">Manage Feedback</a></li>
+                <li><a href="{{ route('feedbacks') }}" class="dropdown-item rounded-pill">Export Feedback</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Student</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
                 <li><a href="{{ route('students') }}" class="dropdown-item rounded-pill">Manage Student</a></li>
+                <li><a href="{{ route('students') }}" class="dropdown-item rounded-pill">Export Student</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
@@ -35,13 +37,14 @@
         <li class="me-lg-3 nav-item dropdown">
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Job</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
-                <li><a href="" class="dropdown-item rounded-pill">Manage Job</a></li>
+                <li><a href="{{ route('jobs') }}" class="dropdown-item rounded-pill">Manage Job</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Referrals</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
-                <li><a href="" class="dropdown-item rounded-pill">Manage Referrals</a></li>
+                <li><a href="{{ route('eds.referrals') }}" class="dropdown-item rounded-pill">Manage Referrals</a></li>
+                <li><a href="{{ route('eds.referrals') }}" class="dropdown-item rounded-pill">Import Referrals</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
