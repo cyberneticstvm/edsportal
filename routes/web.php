@@ -24,10 +24,6 @@ Route::middleware(['web'])->group(function () {
             Route::get('logout', 'logout')->name('logout');
         });
 
-        Route::prefix('export')->controller(ExportController::class)->group(function () {
-            Route::get('product', 'exportProduct')->name('product.export');
-        });
-
         Route::prefix('portal')->controller(HelperController::class)->group(function () {
             Route::get('account', 'change_password')->name('change.password')->middleware('role:admin');
             Route::post('account', 'update_password')->name('update.password')->middleware('role:admin');

@@ -86,10 +86,10 @@ class HelperController extends Controller
     {
         $certificate = CertificateRequest::findOrFail(decrypt($request->id));
         $courses = Course::where('parent_id', $certificate->course_id)->get();
-        $qrcode = QrCode::size(75)->generate('https://empiredatasystems.com/certificate-authentication/'.encrypt($certificate->id));
+        $qrcode = QrCode::size(75)->generate('https://empiredatasystems.com/certificate-authentication/' . encrypt($certificate->id));
         $pdf = Pdf::loadView('certificate.certificate', compact('certificate', 'courses', 'qrcode'))->setPaper('a4', 'landscape');
 
-        return $pdf->stream('certificate'.'.pdf');
+        return $pdf->stream('certificate' . '.pdf');
     }
 
     public function feedbacks()
@@ -441,7 +441,7 @@ class HelperController extends Controller
         ]);
         $ext = $request->document->extension();
         $file_original_name = $request->file('document')->getClientOriginalName();
-        $fileName = time().'.'.$ext;
+        $fileName = time() . '.' . $ext;
         $request->document->move(public_path('storage/uploads'), $fileName);
         FileUpload::create([
             'file_name' => $file_original_name,
@@ -456,7 +456,7 @@ class HelperController extends Controller
     public function file_download(Request $request)
     {
         $file = FileUpload::findOrFail(decrypt($request->id));
-        $file_path = public_path('/storage/uploads/'.$file->url);
+        $file_path = public_path('/storage/uploads/' . $file->url);
 
         return response()->download($file_path);
     }
@@ -464,7 +464,7 @@ class HelperController extends Controller
     public function delete_file_upload(Request $request)
     {
         $file = FileUpload::findOrFail(decrypt($request->id));
-        $path = public_path('/storage/uploads/'.$file->url);
+        $path = public_path('/storage/uploads/' . $file->url);
         if (File::exists($path)) {
             File::delete($path);
             $file->delete();
