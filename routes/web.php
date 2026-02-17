@@ -29,23 +29,29 @@ Route::middleware(['web'])->group(function () {
         });
 
         Route::prefix('portal')->controller(HelperController::class)->group(function () {
-            Route::get('account', 'change_password')->name('change.password')->middleware("role:admin");;
-            Route::post('account', 'update_password')->name('update.password')->middleware("role:admin");;
+            Route::get('account', 'change_password')->name('change.password')->middleware('role:admin');
+            Route::post('account', 'update_password')->name('update.password')->middleware('role:admin');
 
             Route::get('certificate', 'certificate_requests')->name('certificate.requests');
-            Route::get("certificate-request-status-update", 'certificate_request_status_update')->name("certificate.request.status.update");
+            Route::get('certificate-request-status-update', 'certificate_request_status_update')->name('certificate.request.status.update');
             Route::get('certificate-request-delete', 'certificate_request_delete')->name('certificate.request.delete');
-            Route::get("print-certificate", "print_certificate")->name("print.certificate")->middleware("role:admin");
+            Route::get('print-certificate', 'print_certificate')->name('print.certificate')->middleware('role:admin');
 
             Route::get('feedback', 'feedbacks')->name('feedbacks');
             Route::get('feedback-status-update', 'feedback_status_update')->name('feedback.status.update');
             Route::get('feedback-edit', 'edit_feedback')->name('feedback.edit');
             Route::post('feedback-update', 'update_feedback')->name('feedback.update');
+            Route::get('feedback-export', 'export_feedback')->name('feedback.export');
+            Route::post('feedback-export', 'export_feedback_fetch')->name('feedback.export.fetch');
+            Route::get('feedback-export-excel', 'export_feedback_excel')->name('feedback.export.excel');
 
             Route::get('students', 'students')->name('students');
             Route::get('student-edit', 'edit_student')->name('student.edit');
             Route::post('student-update', 'update_student')->name('student.update');
             Route::get('student-delete', 'delete_student')->name('student.delete');
+            Route::get('student-export', 'export_student')->name('student.export');
+            Route::post('student-export', 'export_student_fetch')->name('student.export.fetch');
+            Route::get('student-export-excel', 'export_student_excel')->name('student.export.excel');
 
             Route::get('blogs', 'blogs')->name('blogs');
             Route::get('blog-create', 'create_blog')->name('blog.create');

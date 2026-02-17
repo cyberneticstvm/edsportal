@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\FeedbackExport;
+use App\Exports\StudentExport;
 use App\Models\Blog;
 use App\Models\CertificateRequest;
 use App\Models\Course;
@@ -13,366 +15,465 @@ use App\Models\JobPost;
 use App\Models\Student;
 use App\Models\StudentFeedback;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class HelperController extends Controller
 {
     private $courses;
-    function __construct()
+
+    public function __construct()
     {
-        $this->courses = Course::where("status", 1)->whereIn('id', [1, 2, 4, 5, 7, 16])->get();
+        $this->courses = Course::where('status', 1)->whereIn('id', [1, 2, 4, 5, 7, 16])->get();
     }
 
-    function change_password()
+    public function change_password()
     {
-        return view("account.change_pwd");
+        return view('account.change_pwd');
     }
 
-    function update_password(Request $request)
+    public function update_password(Request $request)
     {
         $request->validate([
-            "old_password" => "required|current-password",
-            "password" => "required|min:6",
-            "confirm_password" => "same:password",
+            'old_password' => 'required|current-password',
+            'password' => 'required|min:6',
+            'confirm_password' => 'same:password',
         ]);
         User::find(Auth::user()->id)->update(['password' => Hash::make($request->password)]);
-        return redirect()->back()->with("success", "Password updated successfully!");
+
+        return redirect()->back()->with('success', 'Password updated successfully!');
     }
 
-    function certificate_requests()
+    public function certificate_requests()
     {
         $certificates = CertificateRequest::latest()->limit(100)->get();
-        return view("certificate.index", compact('certificates'));
+
+        return view('certificate.index', compact('certificates'));
     }
 
-    function certificate_request_status_update(Request $request)
+    public function certificate_request_status_update(Request $request)
     {
         try {
             CertificateRequest::findOrFail(decrypt($request->id))->update([
-                "status" => decrypt($request->status)
+                'status' => decrypt($request->status),
             ]);
         } catch (Exception $e) {
-            return redirect()->back()->with("error", $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        return redirect()->back()->with("success", "Request status updated successfully!");
+
+        return redirect()->back()->with('success', 'Request status updated successfully!');
     }
 
-    function certificate_request_delete(Request $request)
+    public function certificate_request_delete(Request $request)
     {
         try {
             CertificateRequest::findOrFail(decrypt($request->id))->delete();
         } catch (Exception $e) {
-            return redirect()->back()->with("error", $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        return redirect()->back()->with("success", "Request deleted successfully!");
+
+        return redirect()->back()->with('success', 'Request deleted successfully!');
     }
 
-    function print_certificate(Request $request)
+    public function print_certificate(Request $request)
     {
         $certificate = CertificateRequest::findOrFail(decrypt($request->id));
-        $courses = Course::where("parent_id", $certificate->course_id)->get();
-        $qrcode = QrCode::size(75)->generate('https://empiredatasystems.com/certificate-authentication/' . encrypt($certificate->id));
+        $courses = Course::where('parent_id', $certificate->course_id)->get();
+        $qrcode = QrCode::size(75)->generate('https://empiredatasystems.com/certificate-authentication/'.encrypt($certificate->id));
         $pdf = Pdf::loadView('certificate.certificate', compact('certificate', 'courses', 'qrcode'))->setPaper('a4', 'landscape');
-        return $pdf->stream('certificate' . '.pdf');
+
+        return $pdf->stream('certificate'.'.pdf');
     }
 
-    function feedbacks()
+    public function feedbacks()
     {
         $feedbacks = StudentFeedback::latest()->limit(50)->get();
-        return view("feedback.index", compact('feedbacks'));
+
+        return view('feedback.index', compact('feedbacks'));
     }
 
-    function feedback_status_update(Request $request)
+    public function feedback_status_update(Request $request)
     {
         StudentFeedback::findOrFail(decrypt($request->id))->update([
-            "status" => decrypt($request->status)
+            'status' => decrypt($request->status),
         ]);
-        return redirect()->back()->with("success", "Status updated successfully!");
+
+        return redirect()->back()->with('success', 'Status updated successfully!');
     }
 
-    function edit_feedback(Request $request)
+    public function edit_feedback(Request $request)
     {
         $feedback = StudentFeedback::findOrFail(decrypt($request->id));
-        $courses = $this->courses->pluck("name", "id");
-        $statuses = Extra::where("category", "feedback")->pluck("name", "id");
-        return view("feedback.edit", compact('feedback', 'courses', 'statuses'));
+        $courses = $this->courses->pluck('name', 'id');
+        $statuses = Extra::where('category', 'feedback')->pluck('name', 'id');
+
+        return view('feedback.edit', compact('feedback', 'courses', 'statuses'));
     }
 
-    function update_feedback(Request $request)
+    public function update_feedback(Request $request)
     {
         $inputs = $request->validate([
-            "student_name" => "required",
-            "trainer_name" => "required",
-            "course_id" => "required",
-            "location" => "required",
-            "country" => "required",
-            "status" => "required",
-            "feedback" => "required",
+            'student_name' => 'required',
+            'trainer_name' => 'required',
+            'course_id' => 'required',
+            'location' => 'required',
+            'country' => 'required',
+            'status' => 'required',
+            'feedback' => 'required',
         ]);
         StudentFeedback::findOrFail(decrypt($request->id))->update($inputs);
-        return redirect()->route("feedbacks")->with("success", "Feedback updated successfully!");
+
+        return redirect()->route('feedbacks')->with('success', 'Feedback updated successfully!');
     }
 
-    function students()
+    public function export_feedback()
+    {
+        $inputs = [date('Y-m-d'), date('Y-m-d'), 0];
+        $statuses = Extra::where('category', 'feedback')->pluck('name', 'id');
+        $feedbacks = collect();
+
+        return view('feedback.export', compact('inputs', 'statuses', 'feedbacks'));
+    }
+
+    public function export_feedback_fetch(Request $request)
+    {
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date',
+        ]);
+        $inputs = [$request->from_date, $request->to_date, $request->status ?? 0];
+        $statuses = Extra::where('category', 'feedback')->pluck('name', 'id');
+        $feedbacks = StudentFeedback::whereBetween('feedback_date', [Carbon::parse($request->from_date)->startOfDay(), Carbon::parse($request->to_date)->endOfDay()])->when($request->status > 0, function ($q) use ($request) {
+            return $q->where('status', $request->status);
+        })->latest()->get();
+
+        return view('feedback.export', compact('inputs', 'statuses', 'feedbacks'));
+    }
+
+    public function export_feedback_excel(Request $request)
+    {
+        return Excel::download(new FeedbackExport($request), 'feedback.xlsx');
+    }
+
+    public function students()
     {
         $students = Student::latest()->limit(100)->get();
-        return view("student.index", compact('students'));
+
+        return view('student.index', compact('students'));
     }
 
-    function edit_student(Request $request)
+    public function edit_student(Request $request)
     {
         $student = Student::findOrFail(decrypt($request->id));
-        $courses = $this->courses->pluck("name", "id");
-        $statuses = Extra::where("category", "student")->pluck("name", "id");
-        $references = Extra::where("category", "reference")->pluck("name", "id");
-        return view("student.edit", compact('student', 'courses', 'statuses', 'references'));
+        $courses = $this->courses->pluck('name', 'id');
+        $statuses = Extra::where('category', 'student')->pluck('name', 'id');
+        $references = Extra::where('category', 'reference')->pluck('name', 'id');
+
+        return view('student.edit', compact('student', 'courses', 'statuses', 'references'));
     }
 
-    function update_student(Request $request)
+    public function update_student(Request $request)
     {
         $inputs = $request->validate([
-            "name" => "required",
-            "email" => "required|email",
-            "phone" => "required",
-            "course_id" => "required",
-            "response_date" => "required|date",
-            "referred_by" => "required",
-            "status" => "required",
-            "comments" => "nullable",
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'course_id' => 'required',
+            'response_date' => 'required|date',
+            'referred_by' => 'required',
+            'status' => 'required',
+            'comments' => 'nullable',
         ]);
         $inputs['updated_by'] = $request->user()->id;
         Student::findOrFail(decrypt($request->id))->update($inputs);
-        return redirect()->route("students")->with("success", "Student updated successfully!");
+
+        return redirect()->route('students')->with('success', 'Student updated successfully!');
     }
 
-    function delete_student(Request $request)
+    public function delete_student(Request $request)
     {
         Student::findOrFail(decrypt($request->id))->delete();
-        return redirect()->route('students')->with("success", "Student deleted successfully!");
+
+        return redirect()->route('students')->with('success', 'Student deleted successfully!');
     }
 
-    function blogs()
+    public function export_student()
     {
-        $blogs = Blog::selectRaw("id, title, author, created_by, created_at")->latest()->get();
-        return view("blog.index", compact('blogs'));
+        $inputs = [date('Y-m-d'), date('Y-m-d'), 0, 0];
+        $statuses = Extra::where('category', 'student')->pluck('name', 'id');
+        $courses = $this->courses->pluck('name', 'id');
+        $students = collect();
+
+        return view('student.export', compact('inputs', 'statuses', 'courses', 'students'));
     }
 
-    function create_blog()
+    public function export_student_fetch(Request $request)
     {
-        return view("blog.create");
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date',
+        ]);
+        $inputs = [$request->from_date, $request->to_date, $request->course ?? 0, $request->status ?? 0];
+        $statuses = Extra::where('category', 'student')->pluck('name', 'id');
+        $courses = $this->courses->pluck('name', 'id');
+        $students = Student::whereBetween('response_date', [Carbon::parse($request->from_date)->startOfDay(), Carbon::parse($request->to_date)->endOfDay()])->when($request->status > 0, function ($q) use ($request) {
+            return $q->where('status', $request->status);
+        })->when($request->course > 0, function ($q) use ($request) {
+            return $q->where('course_id', $request->course);
+        })->latest()->get();
+
+        return view('student.export', compact('inputs', 'statuses', 'courses', 'students'));
     }
 
-    function save_blog(Request $request)
+    public function export_student_excel(Request $request)
+    {
+        return Excel::download(new StudentExport($request), 'students.xlsx');
+    }
+
+    public function blogs()
+    {
+        $blogs = Blog::selectRaw('id, title, author, created_by, created_at')->latest()->get();
+
+        return view('blog.index', compact('blogs'));
+    }
+
+    public function create_blog()
+    {
+        return view('blog.create');
+    }
+
+    public function save_blog(Request $request)
     {
         $inputs = $request->validate([
-            "title" => "required",
-            "author" => "required",
-            "intro" => "required",
-            "content" => "required",
+            'title' => 'required',
+            'author' => 'required',
+            'intro' => 'required',
+            'content' => 'required',
         ]);
-        $inputs["rating"] = 5;
-        $inputs["created_by"] = $request->user()->id;
-        $inputs["updated_by"] = $request->user()->id;
+        $inputs['rating'] = 5;
+        $inputs['created_by'] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
         Blog::create($inputs);
-        return redirect()->route('blogs')->with("success", "Blog created successfully!");
+
+        return redirect()->route('blogs')->with('success', 'Blog created successfully!');
     }
 
-    function edit_blog(Request $request)
+    public function edit_blog(Request $request)
     {
         $blog = Blog::findOrFail(decrypt($request->id));
-        return view("blog.edit", compact('blog'));
+
+        return view('blog.edit', compact('blog'));
     }
 
-    function update_blog(Request $request)
+    public function update_blog(Request $request)
     {
         $inputs = $request->validate([
-            "title" => "required",
-            "author" => "required",
-            "intro" => "required",
-            "content" => "required",
+            'title' => 'required',
+            'author' => 'required',
+            'intro' => 'required',
+            'content' => 'required',
         ]);
-        $inputs["updated_by"] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
         Blog::findOrFail(decrypt($request->id))->update($inputs);
-        return redirect()->route('blogs')->with("success", "Blog updated successfully!");
+
+        return redirect()->route('blogs')->with('success', 'Blog updated successfully!');
     }
 
-    function delete_blog(Request $request)
+    public function delete_blog(Request $request)
     {
         Blog::findOrFail(decrypt($request->id))->delete();
-        return redirect()->route('blogs')->with("success", "Blog deleted successfully!");
+
+        return redirect()->route('blogs')->with('success', 'Blog deleted successfully!');
     }
 
-    function jobs()
+    public function jobs()
     {
-        $jobs = JobPost::selectRaw("id, title, location, contact_email, posted_on")->latest()->get();
-        return view("job.index", compact('jobs'));
+        $jobs = JobPost::selectRaw('id, title, location, contact_email, posted_on')->latest()->get();
+
+        return view('job.index', compact('jobs'));
     }
 
-    function create_job()
+    public function create_job()
     {
-        return view("job.create");
+        return view('job.create');
     }
 
-    function save_job(Request $request)
+    public function save_job(Request $request)
     {
         $inputs = $request->validate([
-            "title" => "required",
-            "contact_email" => "required|email",
-            "location" => "required",
-            "posted_on" => "required|date",
-            "description" => "required",
+            'title' => 'required',
+            'contact_email' => 'required|email',
+            'location' => 'required',
+            'posted_on' => 'required|date',
+            'description' => 'required',
         ]);
-        $inputs["created_by"] = $request->user()->id;
-        $inputs["updated_by"] = $request->user()->id;
+        $inputs['created_by'] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
         JobPost::create($inputs);
-        return redirect()->route("jobs")->with("success", "Job created successfully!");
+
+        return redirect()->route('jobs')->with('success', 'Job created successfully!');
     }
 
-    function edit_job(Request $request)
+    public function edit_job(Request $request)
     {
         $job = JobPost::findOrFail(decrypt($request->id));
-        return view("job.edit", compact('job'));
+
+        return view('job.edit', compact('job'));
     }
 
-    function update_job(Request $request)
+    public function update_job(Request $request)
     {
         $inputs = $request->validate([
-            "title" => "required",
-            "contact_email" => "required|email",
-            "location" => "required",
-            "posted_on" => "required|date",
-            "description" => "required",
+            'title' => 'required',
+            'contact_email' => 'required|email',
+            'location' => 'required',
+            'posted_on' => 'required|date',
+            'description' => 'required',
         ]);
-        $inputs["updated_by"] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
         JobPost::findOrFail(decrypt($request->id))->update($inputs);
-        return redirect()->route('jobs')->with("success", "Job updated successfully!");
+
+        return redirect()->route('jobs')->with('success', 'Job updated successfully!');
     }
 
-    function delete_job(Request $request)
+    public function delete_job(Request $request)
     {
         JobPost::findOrFail(decrypt($request->id))->delete();
-        return redirect()->route('jobs')->with("success", "Job deleted successfully!");
+
+        return redirect()->route('jobs')->with('success', 'Job deleted successfully!');
     }
 
-    function eds_referrals()
+    public function eds_referrals()
     {
         $referrals = EdsReferral::latest()->get();
-        return view("referral.index", compact('referrals'));
+
+        return view('referral.index', compact('referrals'));
     }
 
-    function create_eds_referral()
+    public function create_eds_referral()
     {
-        $courses = $this->courses->pluck("name", "id");
-        return view("referral.create", compact('courses'));
+        $courses = $this->courses->pluck('name', 'id');
+
+        return view('referral.create', compact('courses'));
     }
 
-    function save_eds_referral(Request $request)
+    public function save_eds_referral(Request $request)
     {
         $inputs = $request->validate([
-            "first_name" => "required",
-            "last_name" => "required",
-            "email" => "required|email",
-            "course_id" => "required",
-            "registration_date" => "required|date",
-            "comments" => "nullable",
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+            'course_id' => 'required',
+            'registration_date' => 'required|date',
+            'comments' => 'nullable',
         ]);
-        $inputs["created_by"] = $request->user()->id;
-        $inputs["updated_by"] = $request->user()->id;
-        $inputs["referral_code"] = NULL;
+        $inputs['created_by'] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
+        $inputs['referral_code'] = null;
         EdsReferral::create($inputs);
-        return redirect()->route("eds.referrals")->with("success", "Refferal created successfully!");
+
+        return redirect()->route('eds.referrals')->with('success', 'Refferal created successfully!');
     }
 
-    function edit_eds_referral(Request $request)
+    public function edit_eds_referral(Request $request)
     {
         $referral = EdsReferral::findOrFail(decrypt($request->id));
-        $courses = $this->courses->pluck("name", "id");
-        return view("referral.edit", compact('referral', 'courses'));
+        $courses = $this->courses->pluck('name', 'id');
+
+        return view('referral.edit', compact('referral', 'courses'));
     }
 
-    function update_eds_referral(Request $request)
+    public function update_eds_referral(Request $request)
     {
         $inputs = $request->validate([
-            "first_name" => "required",
-            "last_name" => "required",
-            "email" => "required|email",
-            "course_id" => "required",
-            "registration_date" => "required|date",
-            "comments" => "nullable",
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+            'course_id' => 'required',
+            'registration_date' => 'required|date',
+            'comments' => 'nullable',
         ]);
-        $inputs["updated_by"] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
         EdsReferral::findOrFail(decrypt($request->id))->update($inputs);
-        return redirect()->route('eds.referrals')->with("success", "Referral updated successfully!");
+
+        return redirect()->route('eds.referrals')->with('success', 'Referral updated successfully!');
     }
 
-    function delete_eds_referral(Request $request)
+    public function delete_eds_referral(Request $request)
     {
         EdsReferral::findOrFail(decrypt($request->id))->delete();
-        return redirect()->route('eds.referrals')->with("success", "Referral deleted successfully!");
+
+        return redirect()->route('eds.referrals')->with('success', 'Referral deleted successfully!');
     }
 
-    function form_submits()
+    public function form_submits()
     {
         $forms = FormSubmit::latest()->get();
-        return view("form.index", compact('forms'));
+
+        return view('form.index', compact('forms'));
     }
 
-    function form_submit_delete(Request $request)
+    public function form_submit_delete(Request $request)
     {
         FormSubmit::findOrFail(decrypt($request->id))->delete();
-        return redirect()->route('form.submits')->with("success", "Request deleted successfully!");
+
+        return redirect()->route('form.submits')->with('success', 'Request deleted successfully!');
     }
 
-    function file_uploads()
+    public function file_uploads()
     {
         $files = FileUpload::latest()->get();
-        return view("uploads.index", compact('files'));
+
+        return view('uploads.index', compact('files'));
     }
 
-    function file_upload_save(Request $request)
+    public function file_upload_save(Request $request)
     {
         $request->validate([
             'document' => 'required|mimes:jpg,png,pdf,xlx,xlsx,doc,docx|max:1024', // Validate file type and size
         ]);
         $ext = $request->document->extension();
         $file_original_name = $request->file('document')->getClientOriginalName();
-        $fileName = time() . '.' . $ext;
+        $fileName = time().'.'.$ext;
         $request->document->move(public_path('storage/uploads'), $fileName);
         FileUpload::create([
-            "file_name" => $file_original_name,
-            "file_type" => $ext,
-            "url" => $fileName,
-            "created_by" => $request->user()->id,
-            "created_at" => Carbon::now(),
-            "updated_at" => Carbon::now(),
+            'file_name' => $file_original_name,
+            'file_type' => $ext,
+            'url' => $fileName,
+            'created_by' => $request->user()->id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
     }
 
-    function file_download(Request $request)
+    public function file_download(Request $request)
     {
         $file = FileUpload::findOrFail(decrypt($request->id));
-        $file_path = public_path('/storage/uploads/' . $file->url);
+        $file_path = public_path('/storage/uploads/'.$file->url);
+
         return response()->download($file_path);
     }
 
-    function delete_file_upload(Request $request)
+    public function delete_file_upload(Request $request)
     {
         $file = FileUpload::findOrFail(decrypt($request->id));
-        $path = public_path('/storage/uploads/' . $file->url);
-        if (File::exists($path)):
+        $path = public_path('/storage/uploads/'.$file->url);
+        if (File::exists($path)) {
             File::delete($path);
             $file->delete();
+
             return back()->with('success', 'File deleted successfully!');
-        else:
+        } else {
             return back()->with('error', 'File not found!');
-        endif;
+        }
+
         return back()->with('error', 'Something went wrong!');
     }
 }

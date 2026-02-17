@@ -18,14 +18,14 @@
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Feedback</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
                 <li><a href="{{ route('feedbacks') }}" class="dropdown-item rounded-pill">Manage Feedback</a></li>
-                <li><a href="{{ route('feedbacks') }}" class="dropdown-item rounded-pill">Export Feedback</a></li>
+                <li><a href="{{ route('feedback.export') }}" class="dropdown-item rounded-pill">Export Feedback</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
             <a class="nav-link py-1 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Student</a>
             <ul class="dropdown-menu p-2 p-xl-3 language shadow-lg rounded-4 li_animate">
                 <li><a href="{{ route('students') }}" class="dropdown-item rounded-pill">Manage Student</a></li>
-                <li><a href="{{ route('students') }}" class="dropdown-item rounded-pill">Export Student</a></li>
+                <li><a href="{{ route('student.export') }}" class="dropdown-item rounded-pill">Export Student</a></li>
             </ul>
         </li>
         <li class="me-lg-3 nav-item dropdown">
