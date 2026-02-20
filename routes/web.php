@@ -44,7 +44,7 @@ Route::middleware(['web'])->group(function () {
             Route::get('students', 'students')->name('students');
             Route::get('student-edit', 'edit_student')->name('student.edit');
             Route::post('student-update', 'update_student')->name('student.update');
-            Route::get('student-delete', 'delete_student')->name('student.delete');
+            Route::get('student-delete', 'delete_student')->name('student.delete')->middleware('role:admin');;
             Route::get('student-export', 'export_student')->name('student.export');
             Route::post('student-export', 'export_student_fetch')->name('student.export.fetch');
             Route::get('student-export-excel', 'export_student_excel')->name('student.export.excel');
@@ -54,29 +54,29 @@ Route::middleware(['web'])->group(function () {
             Route::post('blog-save', 'save_blog')->name('blog.save');
             Route::get('blog-edit', 'edit_blog')->name('blog.edit');
             Route::post('blog-update', 'update_blog')->name('blog.update');
-            Route::get('blog-delete', 'delete_blog')->name('blog.delete');
+            Route::get('blog-delete', 'delete_blog')->name('blog.delete')->middleware('role:admin');;
 
             Route::get('jobs', 'jobs')->name('jobs');
             Route::get('job-create', 'create_job')->name('job.create');
             Route::post('job-save', 'save_job')->name('job.save');
             Route::get('job-edit', 'edit_job')->name('job.edit');
             Route::post('job-update', 'update_job')->name('job.update');
-            Route::get('job-delete', 'delete_job')->name('job.delete');
+            Route::get('job-delete', 'delete_job')->name('job.delete')->middleware('role:admin');;
 
             Route::get('eds_referrals', 'eds_referrals')->name('eds.referrals');
             Route::get('eds-referral-create', 'create_eds_referral')->name('eds.referral.create');
             Route::post('eds-referral-save', 'save_eds_referral')->name('eds.referral.save');
             Route::get('eds-referral-edit', 'edit_eds_referral')->name('eds.referral.edit');
             Route::post('eds-referral-update', 'update_eds_referral')->name('eds.referral.update');
-            Route::get('eds-referral-delete', 'delete_eds_referral')->name('eds.referral.delete');
+            Route::get('eds-referral-delete', 'delete_eds_referral')->name('eds.referral.delete')->middleware('role:admin');;
 
             Route::get('form-submits', 'form_submits')->name('form.submits');
-            Route::get('form-submit-delete', 'form_submit_delete')->name('form.submit.delete');
+            Route::get('form-submit-delete', 'form_submit_delete')->name('form.submit.delete')->middleware('role:admin');;
 
             Route::get('file-uploads', 'file_uploads')->name('file.uploads');
             Route::post('file-uploads', 'file_upload_save')->name('file.upload.save');
             Route::get('file-download', 'file_download')->name('file.download');
-            Route::get('file-upload-delete', 'delete_file_upload')->name('file.upload.delete');
+            Route::get('file-upload-delete', 'delete_file_upload')->name('file.upload.delete')->middleware('role:admin');;
         });
     });
 });
