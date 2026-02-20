@@ -451,6 +451,7 @@ class HelperController extends Controller
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+        return redirect()->back()->with('success', 'File uploaded successfully!');
     }
 
     public function file_download(Request $request)
