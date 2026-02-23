@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('/assets/plugins/datatables/dataTables.responsive.css') }}">
-
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
-
+    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit']))
+    <link rel="stylesheet" href="{{ asset('/assets/css/summernote-bs5.min.css') }}">
+    @endif
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('/assets/css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('/assets/css/charts.css') }}">
@@ -336,20 +336,22 @@
         }
     </script>
     @include("message")
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.js"></script>
+    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit']))
+    <script src="{{ asset('/assets/js/summernote-bs5.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                height: 250,
+                placeholder: 'Description / Content',
+            });
+        });
+    </script>
+    @endif
     @if(in_array(Route::current()->getName(), ['index']))
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{{ asset('/assets/js/chart.js') }}"></script>
     @endif
     <script src="{{ asset('/assets/js/devi.js?v=7') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('#summernote').summernote({
-                height: 250,
-                placeholder: 'Description / Content'
-            });
-        });
-    </script>
 </body>
 
 </html>
