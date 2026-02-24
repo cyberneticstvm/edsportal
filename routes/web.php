@@ -42,6 +42,8 @@ Route::middleware(['web'])->group(function () {
             Route::get('feedback-export-excel', 'export_feedback_excel')->name('feedback.export.excel');
 
             Route::get('students', 'students')->name('students');
+            Route::get('student-create', 'create_student')->name('student.create');
+            Route::post('student-save', 'save_student')->name('student.save');
             Route::get('student-edit', 'edit_student')->name('student.edit');
             Route::post('student-update', 'update_student')->name('student.update');
             Route::get('student-delete', 'delete_student')->name('student.delete')->middleware('role:admin');

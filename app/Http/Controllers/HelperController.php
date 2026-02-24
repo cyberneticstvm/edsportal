@@ -169,6 +169,33 @@ class HelperController extends Controller
         return view('student.index', compact('students'));
     }
 
+    public function create_student()
+    {
+        $courses = $this->courses->pluck('name', 'id');
+        $statuses = Extra::where('category', 'student')->pluck('name', 'id');
+        $references = Extra::where('category', 'reference')->pluck('name', 'id');
+        return view('student.create', compact('courses', 'statuses', 'references'));
+    }
+
+    public function save_student(Request $request)
+    {
+        $inputs = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'course_id' => 'required',
+            'response_date' => 'required|date',
+            'referred_by' => 'required',
+            'status' => 'required',
+            'comments' => 'nullable',
+        ]);
+        $inputs['created_by'] = $request->user()->id;
+        $inputs['updated_by'] = $request->user()->id;
+        Student::create($inputs);
+
+        return redirect()->route('students')->with('success', 'Student created successfully!');
+    }
+
     public function edit_student(Request $request)
     {
         $student = Student::findOrFail(decrypt($request->id));

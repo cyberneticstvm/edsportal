@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('/assets/plugins/datatables/dataTables.responsive.css') }}">
-    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit']))
+    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit', 'job.create', 'job.edit']))
     <link rel="stylesheet" href="{{ asset('/assets/css/summernote-bs5.min.css') }}">
     @endif
     <!-- Custom CSS -->

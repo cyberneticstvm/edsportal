@@ -8,7 +8,7 @@
                 <p class="fs-12">Student Register</p>
             </div>
             <div class="col-6 text-end">
-                <a href="" class="btn btn-primary">Add New Student</a>
+                <a href="{{ route('student.create') }}" class="btn btn-primary">Add New Student</a>
             </div>
         </div>
         <div class="row g-lg-12 g-3">
