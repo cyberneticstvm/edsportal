@@ -336,7 +336,7 @@
         }
     </script>
     @include("message")
-    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit']))
+    @if(in_array(Route::current()->getName(), ['blog.create', 'blog.edit', 'job.create', 'job.edit']))
     <script src="{{ asset('/assets/js/summernote-bs5.min.js') }}"></script>
     <script>
         $(document).ready(function() {
