@@ -12,21 +12,21 @@
         <div class="row g-lg-12 g-3">
             <div class="control-group col-md-3">
                 <label class="form-label req">Student Name </label>
-                {{ html()->text('name', old('student'))->class('form-control')->required() }}
+                {{ html()->text('name', old('student'))->class('form-control')->placeholder('Name')->required() }}
                 @error('name')
                 <small class="text-danger">{{ $errors->first('name') }}</small>
                 @enderror
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label req">Student Email </label>
-                {{ html()->email('email', old('email'))->class('form-control')->required() }}
+                {{ html()->email('email', old('email'))->class('form-control')->placeholder('Email')->required() }}
                 @error('email')
                 <small class="text-danger">{{ $errors->first('email') }}</small>
                 @enderror
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label req">Student Phone </label>
-                {{ html()->text('phone', old('phone'))->class('form-control')->required() }}
+                {{ html()->text('phone', old('phone'))->class('form-control')->placeholder('Phone')->required() }}
                 @error('phone')
                 <small class="text-danger">{{ $errors->first('phone') }}</small>
                 @enderror
@@ -40,28 +40,28 @@
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label req">Course </label>
-                {{ html()->select('course_id', $courses, old('course_id'))->class('form-control')->required() }}
+                {{ html()->select('course_id', $courses, old('course_id'))->class('form-control')->placeholder('Select')->required() }}
                 @error('course_id')
                 <small class="text-danger">{{ $errors->first('course_id') }}</small>
                 @enderror
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label req">Status </label>
-                {{ html()->select('status', $statuses, old('status'))->class('form-control')->required() }}
+                {{ html()->select('status', $statuses, old('status'))->class('form-control')->placeholder('Select')->required() }}
                 @error('status')
                 <small class="text-danger">{{ $errors->first('status') }}</small>
                 @enderror
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label req">Referred by </label>
-                {{ html()->select('referred_by', $references, old('referred_by'))->class('form-control')->required() }}
+                {{ html()->select('referred_by', $references, old('referred_by'))->class('form-control')->placeholder('Select')->required() }}
                 @error('referred_by')
                 <small class="text-danger">{{ $errors->first('referred_by') }}</small>
                 @enderror
             </div>
             <div class="control-group col-md-3">
                 <label class="form-label">Comments </label>
-                {{ html()->text('comments', old('comments'))->class('form-control') }}
+                {{ html()->text('comments', old('comments'))->class('form-control')->placeholder('Comments') }}
                 @error('comments')
                 <small class="text-danger">{{ $errors->first('comments') }}</small>
                 @enderror
