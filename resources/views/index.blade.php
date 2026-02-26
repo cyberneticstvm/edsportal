@@ -134,7 +134,7 @@
                             <path d="M40 47H42.5" style="stroke-dasharray: 2.5; stroke-dashoffset: 0; transition: stroke-dashoffset 1s;"></path>
                         </svg>
                     </div>
-                    <h5 class="module-title mb-0 mt-2">Refarrel</h5>
+                    <h5 class="module-title mb-0 mt-2">Referral</h5>
                 </a>
                 <span class="align-items-center avatar bg-body text-primary d-flex fs-12 fw-bold justify-content-center position-absolute rounded-3 px-4 shadow-sm md" style="top: -12px; right: -12px;">New</span>
             </li>
