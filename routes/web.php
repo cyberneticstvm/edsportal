@@ -31,7 +31,7 @@ Route::middleware(['web'])->group(function () {
             Route::get('certificate', 'certificate_requests')->name('certificate.requests');
             Route::get('certificate-request-status-update', 'certificate_request_status_update')->name('certificate.request.status.update');
             Route::get('certificate-request-delete', 'certificate_request_delete')->name('certificate.request.delete');
-            Route::get('print-certificate', 'print_certificate')->name('print.certificate')->middleware('role:admin');
+            Route::get('print-certificate', 'print_certificate')->name('print.certificate');
 
             Route::get('feedback', 'feedbacks')->name('feedbacks');
             Route::get('feedback-status-update', 'feedback_status_update')->name('feedback.status.update');
